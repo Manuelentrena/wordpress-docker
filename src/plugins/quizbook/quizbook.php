@@ -10,12 +10,17 @@ License: GPLv2 or later
 Text Domain: quizbook
 */
 
+/* Añadir archivo de funciones */
+require_once plugin_dir_path(__FILE__) . 'utils/utils.php';
+
 /* AGREGAR CUSTOM POST TYPE */
 require_once plugin_dir_path(__FILE__) . 'includes/post-types/quiz.php';
 /* AGREGAR METABOX AL POST */
 require_once plugin_dir_path(__FILE__) . 'includes/metaboxes/metaboxes.php';
 /* AGREGAR ROLES Y CAPABILITY */
 require_once plugin_dir_path(__FILE__) . 'includes/roles/roles.php';
+/* Añadir ShortCode para mostrarlo en el frontView */
+require_once plugin_dir_path(__FILE__) . 'includes/shortcode/shortcode.php';
 
 
 /* refrescar urls del plugin al activarlo */
@@ -28,5 +33,9 @@ register_deactivation_hook(__FILE__, 'quizbook_remove_rol');
 register_activation_hook( __FILE__, 'quizbook_add_capabilities' );
 /* Borrar permisos de roles al desactivar el plugin */
 register_deactivation_hook( __FILE__, 'quizbook_remove_capabilities' );
+
+
+
+
 
 ?>
