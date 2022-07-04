@@ -38,12 +38,13 @@ function quizbook_post_type() {
         'show_in_menu'       => true,
         'query_var'          => true,
         'rewrite'            => array( 'slug' => 'quizes' ),
-        'capability_type'    => 'post',
+        'capability_type'    => array('quiz', 'quizes'), // Rol create for us
         'menu_position'      => 6,
         'menu_icon'          => 'dashicons-welcome-learn-more',
         'has_archive'        => false,
         'hierarchical'       => false,
         'supports'           => array( 'title', 'editor'), /* Elementos que aparaceren en una pagina */
+        'map_meta_cap'       => true,
     );
 
     register_post_type( 'quizes', $args );

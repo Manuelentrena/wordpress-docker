@@ -3,15 +3,19 @@
 if(!defined('ABSPATH')) exit;
 
 function quizbook_agregar_metaboxes() {
-    /* id, name, callback, slug-post, position, priority, num_arg */
+    /* id, name, callback($post), slug-post, position, priority, num_arg */
     add_meta_box( 'quizbook_meta_box', 'Respuestas', 'quizbook_metabosex', 'quizes', 'normal', 'high', null);
 }
 
 /* Añade metabox al post */
 add_action( 'add_meta_boxes', 'quizbook_agregar_metaboxes' );
 
-function quizbook_metabosex(){
+function quizbook_metabosex($post){
     /* Vamos a usar una clases de CSS internos para tener los mismos estilos de WP */
+    /* Vamos tambien a crear un nonce, token de 24 horas que se verifica para saber que la fuente de envio de datos es segura */
+    /* Se crea un input invisible con el codigo en el value */
+    /* (donde va a crear el token de seguridad,nombre del nonce) */
+    wp_nonce_field(basename(__FILE__), 'quizbook_nonce' );
     ?>
     <table class="form-table">
         <tr>
@@ -25,7 +29,10 @@ function quizbook_metabosex(){
                 
             </th>
             <td>
-                <input type="text" id="respuesta_1" name="qb_respuesta_1" class="regular-text"></input>
+                <!-- https://codex.wordpress.org/Validating_Sanitizing_and_Escaping_User_Data -->
+                <!-- esc_attr(), para asegurar que lo que hay en la BD es lo que se ve en el input "escapar datos" -->
+                <!-- get_post_meta( id del post, nombre del campo "meta_key" de la tabla postmeta, false -> como array true -> valor directo) -->
+                <input value="<?php echo esc_attr(get_post_meta( $post->ID, 'qb_respuesta_1', true )); ?>" type="text" id="respuesta_1" name="qb_respuesta_1" class="regular-text"></input>
             </td>
         </tr>
         <tr>
@@ -33,7 +40,7 @@ function quizbook_metabosex(){
                 <label for="respuesta_2">B)</label>
             </th>
             <td>
-                <input type="text" id="respuesta_2" name="qb_respuesta_2" class="regular-text"></input>
+                <input value="<?php echo esc_attr(get_post_meta( $post->ID, 'qb_respuesta_2', true )); ?>" type="text" id="respuesta_2" name="qb_respuesta_2" class="regular-text"></input>
             </td>
         </tr>
         <tr>
@@ -41,7 +48,7 @@ function quizbook_metabosex(){
                 <label for="respuesta_3">C)</label>
             </th>
             <td>
-                <input type="text" id="respuesta_3" name="qb_respuesta_3" class="regular-text"></input>
+                <input value="<?php echo esc_attr(get_post_meta( $post->ID, 'qb_respuesta_3', true )); ?>" type="text" id="respuesta_3" name="qb_respuesta_3" class="regular-text"></input>
             </td>
         </tr>
         <tr>
@@ -49,7 +56,7 @@ function quizbook_metabosex(){
                 <label for="respuesta_4">D)</label>
             </th>
             <td>
-                <input type="text" id="respuesta_4" name="qb_respuesta_4" class="regular-text"></input>
+                <input value="<?php echo esc_attr(get_post_meta( $post->ID, 'qb_respuesta_4', true )); ?>" type="text" id="respuesta_4" name="qb_respuesta_4" class="regular-text"></input>
             </td>
         </tr>
         <tr>
@@ -57,7 +64,7 @@ function quizbook_metabosex(){
                 <label for="respuesta_5">E)</label>
             </th>
             <td>
-                <input type="text" id="respuesta_5" name="qb_respuesta_5" class="regular-text"></input>
+                <input value="<?php echo esc_attr(get_post_meta( $post->ID, 'qb_respuesta_5', true )); ?>" type="text" id="respuesta_5" name="qb_respuesta_5" class="regular-text"></input>
             </td>
         </tr>
         <tr>
@@ -65,13 +72,15 @@ function quizbook_metabosex(){
                 <label for="respuesta_correcta">Respuesta Correcta</label>
             </th>
             <td>
+                <?php $respuesta = esc_html(get_post_meta( $post->ID, 'quizbook_correcta', true )); ?>
                 <select name="quizbook_correcta" id="respuesta_correcta" class="postbox">
                     <option value="">Elige la respuesta Correcta</option>
-                    <option value="qb_correcta:a">A</option>
-                    <option value="qb_correcta:b">B</option>
-                    <option value="qb_correcta:c">C</option>
-                    <option value="qb_correcta:d">D</option>
-                    <option value="qb_correcta:e">E</option>
+                    <!-- selected, te la selecciona si coinciden ambos arg -->
+                    <option <?php selected($respuesta,'qb_correcta:a'); ?> value="qb_correcta:a">A</option>
+                    <option <?php selected($respuesta,'qb_correcta:b'); ?> value="qb_correcta:b">B</option>
+                    <option <?php selected($respuesta,'qb_correcta:c'); ?> value="qb_correcta:c">C</option>
+                    <option <?php selected($respuesta,'qb_correcta:d'); ?> value="qb_correcta:d">D</option>
+                    <option <?php selected($respuesta,'qb_correcta:e'); ?> value="qb_correcta:e">E</option>
                 </select>
             </td>
         </tr>
@@ -82,6 +91,19 @@ function quizbook_metabosex(){
 }
 
 function quizbook_guardar_metaboxes($post_id, $post, $update){
+    /* Verificamos en nonce antes de guardar, que se envie y esté verificado en este archivo */
+    if(!isset($_POST['quizbook_nonce']) || !wp_verify_nonce($_POST['quizbook_nonce'], basename(__FILE__))){
+        return $post_id;
+    }
+    /* Si no tiene permisos de edicion el rol de usuario */
+    if(!current_user_can( 'edit_post', $post_id )){
+        return $post_id;
+    }
+
+    if(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE){
+        return $post_id;
+    }
+
     $respuesta_1 = $respuesta_2 = $respuesta_3 = $respuesta_4 = $respuesta_5 =  $correcta = '';
 
     if(isset($_POST['qb_respuesta_1'])){
@@ -91,19 +113,20 @@ function quizbook_guardar_metaboxes($post_id, $post, $update){
 
     if(isset($_POST['qb_respuesta_2'])){
         $respuesta_2 = sanitize_text_field( $_POST['qb_respuesta_2'] );
-    }
 
+    }
     update_post_meta( $post_id, 'qb_respuesta_2', $respuesta_2 );
+
     if(isset($_POST['qb_respuesta_3'])){
         $respuesta_3 = sanitize_text_field( $_POST['qb_respuesta_3'] );
     }
-
     update_post_meta( $post_id, 'qb_respuesta_3', $respuesta_3 );
+
     if(isset($_POST['qb_respuesta_4'])){
         $respuesta_4 = sanitize_text_field( $_POST['qb_respuesta_4'] );
     }
-
     update_post_meta( $post_id, 'qb_respuesta_4', $respuesta_4 );
+
     if(isset($_POST['qb_respuesta_5'])){
         $respuesta_5 = sanitize_text_field( $_POST['qb_respuesta_5'] );
     }
