@@ -21,6 +21,10 @@ require_once plugin_dir_path(__FILE__) . 'includes/metaboxes/metaboxes.php';
 require_once plugin_dir_path(__FILE__) . 'includes/roles/roles.php';
 /* Añadir ShortCode para mostrarlo en el frontView */
 require_once plugin_dir_path(__FILE__) . 'includes/shortcode/shortcode.php';
+/* Añadir CSS para mostrarlo en el frontView */
+require_once plugin_dir_path(__FILE__) . 'includes/scripts/scripts.php';
+/* Añadir resultados del form submit */
+require_once plugin_dir_path(__FILE__) . 'includes/resultados/resultados.php';
 
 
 /* refrescar urls del plugin al activarlo */

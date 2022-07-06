@@ -45,6 +45,8 @@ function quizbook_post_type() {
         'hierarchical'       => false,
         'supports'           => array( 'title', 'editor'), /* Elementos que aparaceren en una pagina */
         'map_meta_cap'       => true,
+        'show_in_rest'       => true,
+        'label'              => 'quizes',
     );
 
     register_post_type( 'quizes', $args );
