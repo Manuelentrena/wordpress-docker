@@ -21,4 +21,5 @@
         </ul>
     </div>
     <input type="submit" value="Enviar" id="quizbook_btnSubmit">
+    <div id="quizbook_resultado"></div>
 </form>

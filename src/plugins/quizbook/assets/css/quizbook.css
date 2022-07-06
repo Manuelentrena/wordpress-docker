@@ -44,3 +44,15 @@
   background-color: cornflowerblue;
   color: white;
 }
+
+.aprobado {
+  border: 2px solid #248c24;
+  color: #248c24;
+  text-align: center;
+}
+
+.suspenso {
+  border: 2px solid #c20000;
+  color: #c20000;
+  text-align: center;
+}

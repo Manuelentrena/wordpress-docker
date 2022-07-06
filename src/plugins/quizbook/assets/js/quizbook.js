@@ -31,19 +31,12 @@ function handleSubmitForm(event) {
   );
   respuestasSeleccionadas.forEach((respuesta) => {
     const [idQuiz, idRespuesta] = respuesta.id.split(":");
-    /* formRespuestas.push(`${idQuiz}:${idRespuesta}`); */
     formRespuestas.set(idQuiz, idRespuesta);
-    /* formRespuestas[idQuiz] = idRespuesta; */
   });
   sendForm(formRespuestas);
 }
 
 function sendForm(formRespuestas) {
-  /* const data = {
-    data: formRespuestas,
-    action: "quizbook_resultados",
-  }; */
-
   const formData = new FormData();
 
   formData.append("action", "quizbook_resultados");
@@ -69,6 +62,19 @@ function sendForm(formRespuestas) {
     body: formData,
   })
     .then((response) => response.json())
-    .then((response) => console.log(response))
+    .then((response) => {
+      let clase = "";
+      if (response.total > 20) {
+        clase = "aprobado";
+      } else {
+        clase = "suspenso";
+      }
+
+      const resultado = document.querySelector("#quizbook_resultado");
+      const BtnSubmit = document.querySelector("#quizbook_btnSubmit");
+      BtnSubmit.remove();
+      resultado.textContent = clase;
+      resultado.classList.add(clase);
+    })
     .catch((err) => console.log(err));
 }
